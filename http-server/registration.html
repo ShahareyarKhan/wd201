@@ -1,0 +1,266 @@
+<html>
+
+<head>
+    <title>Form Validation</title>
+</head>
+<style>
+    body {
+        background-color: #cef7de;
+        color: #0c0b0b;
+        font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+        font-size: 16px;
+        line-height: 1.42857143;
+        margin: 0;
+        align-items: center;
+    }
+
+
+
+    #form-box {
+        background-color: rgba(255, 255, 255, 0.519);
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: left;
+        height: 500px;
+        width: 500px;
+        margin: 3% auto;
+        border-radius: 5px;
+        box-shadow: 4px 4px 4px 4px rgb(0, 0, 0)
+    }
+
+    .inputs {
+        display: flex;
+        margin-left: 10%;
+        margin-right: 3%;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: left;
+        padding-left: 20px;
+        padding-right: 20px;
+        padding-top: 30px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    .inputs input {
+        width: 240px;
+        height: 30px;
+        border: 0;
+        padding: 3px;
+        border-radius: 4px;
+        box-sizing: border-box;
+        font-size: 16px;
+        outline: none;
+        border: 2px solid black;
+    }
+
+    #agree {
+        padding-left: 20px;
+        padding-top: 20px;
+        font-size: 16px;
+        margin-left: 8%;
+    }
+
+    #agree input {
+        margin-top: 10px;
+        width: 20px;
+        height: 20px;
+        border: 1px solid rgb(137, 24, 24);
+        border-radius: 4px;
+    }
+
+    #tbl {
+        background-color: rgba(255, 255, 255, 0.533);
+        color: #000000;
+        border: 1px solid black;
+        width: 1000px;
+        margin: auto;
+        margin-bottom: 14px;
+
+        border-radius: 5px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        box-shadow: 4px 4px 4px 4px rgb(0, 0, 0)
+    }
+    #tbl th{
+        color: #000000;
+    }
+</style>
+
+<body>
+    <div id="form-box">
+        <center>
+            <h1 style="color: rgb(9, 17, 162);">Registration Form </h1>
+        </center>
+        <form id="form">
+            <div id="username" class="inputs">
+                <label for="name">Name</label><br>
+                <input type="text" required id="name" name="name" placeholder="Enter your name" required />
+            </div>
+            <div id="emailid" class="inputs">
+                <label for="email">Email Id</label><br>
+                <input type="email" required id="email" name="email" placeholder="Enter Email" required />
+            </div>
+            <div id="passwd" class="inputs">
+                <label for="password">Password</label><br>
+                <input type="password" required id="password" name="password" placeholder="Enter Password" required />
+            </div>
+            <div id="dateofbirth" class="inputs">
+                <label for="dob">Date of Birth</label>
+                <input id="dob" name="dob" type="date" required />
+            </div>
+            <div id="agree">
+                <input id="tc" type="checkbox" required> I have read and agree to the terms and conditions.</input>
+            </div>
+            <br>
+
+            <center><button id="submit" type="submit"
+                    style="padding: 6px; font-weight: bold; border-radius: 4px;">Submit</button></center>
+        </form>
+    </div>
+    <div id="tbl">
+        <center>
+            <h1 style="color: blue;">Entries</h1>
+        </center>
+        <table id="usertbl">
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Password</th>
+                <th>Date of Birth</th>
+                <th>Accepted terms?</th>
+        </table>
+    </div>
+<script >
+    let element = (id) => document.getElementById(id);
+
+let classes = (classes) => document.getElementsByClassName(classes);
+
+let user_entries = [];
+
+function fillTable(){
+    let obj = localStorage.getItem("user_entries");
+    if(obj){
+        user_entries = JSON.parse(obj);
+    }else{
+        user_entries = [];
+    }
+    return user_entries;
+}
+user_entries = fillTable();
+
+let username = element("name"),
+  email = element("email"),
+  password = element("password"),
+  tc = element("tc"),
+  dob = element("dob");
+
+let errormsg = classes("errormsg");
+
+let form = element("form");
+
+function verify(elem,message,cnd){
+    if(cnd){
+        elem.style.border = "2px solid red";
+        elem.setCustomValidity(message);
+        elem.reportValidity();
+    }else{
+        elem.style.border = "2px solid green";
+        elem.setCustomValidity('');
+
+    }
+}
+
+function checkDOB(){
+    let age = new Date().getFullYear() - new Date(dob.value).getFullYear();
+    if(age < 18 || age>55){
+        return false;
+    }else{
+        return true;
+    }
+}
+let message_name = "Username must be at least 3 characters long";
+let message_email = "Email must be valid";
+let message_agree = "You must agree to the terms and conditions";
+let message_dob = "You age must be between 18 and 55 to continue";
+
+username.addEventListener("input", (e) => {
+    let cond_name = username.value.length < 3;
+    e.preventDefault();
+    verify(username,message_name,cond_name);
+});
+
+email.addEventListener("input", (e) => {
+    let cond_email = !(email.value.includes("@") && email.value.includes("."));
+    e.preventDefault();
+    verify(email,message_email,cond_email);
+});
+
+dob.addEventListener("input", (e) => {
+    let cond_dob = !checkDOB();
+    e.preventDefault();
+    verify(dob,message_dob,cond_dob);
+});
+tc.addEventListener("input", (e) => {
+    let cond_agree = !tc.checked;
+    e.preventDefault();
+    verify(tc,message_agree,cond_agree);
+});
+
+function makeObject(){
+    let check = false;
+    if(tc.checked){
+        check = true;
+    }
+    let obj = {
+        name: username.value,
+        email: email.value,
+        password: password.value,
+        dob: dob.value,
+        checked: check
+    }
+    return obj;
+}
+
+
+function displayTable(){
+    let table = element("usertbl");
+    let entries = user_entries;
+    let str = `<tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Password</th>
+                    <th>Dob</th>
+                    <th>Accepted terms?</th>
+                </tr>\n`;
+    for(let i=0;i<entries.length;i++){
+        str += `<tr>
+                    <td>${entries[i].name}</td>
+                    <td>${entries[i].email}</td>
+                    <td>${entries[i].password}</td>
+                    <td>${entries[i].dob}</td>
+                    <td>${entries[i].checked}</td>
+                </tr>\n`;
+    }
+    table.innerHTML = str;
+}
+
+form.addEventListener("submit", (e) => {
+    let cond_agree= !tc.checked;
+    e.preventDefault();
+    if (!cond_agree) {
+        let obj = makeObject();
+        user_entries.push(obj);
+        localStorage.setItem("user_entries", JSON.stringify(user_entries));
+    }
+    displayTable();
+});
+window.onload = (event) => {
+    displayTable();
+};
+</script>
+    
+</body>
